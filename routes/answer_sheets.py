@@ -189,4 +189,102 @@ def list_answer_sheets(current_user):
 
     except Exception as e:
         print(f"Error listing answer sheets: {str(e)}")
+<<<<<<< HEAD
         return jsonify({'error': 'Server error'}), 500
+=======
+        return jsonify({'error': 'Server error'}), 500
+
+
+@answer_sheets_bp.route('/<sheet_id>', methods=['GET'])
+@token_required
+def get_answer_sheet(current_user, sheet_id):
+    """
+    GET /api/answer-sheets/:id
+    Get specific answer sheet details
+    """
+    try:
+        # Fetch answer sheet
+        sheet = answer_sheet.find_by_id(sheet_id)
+
+        if not sheet:
+            return jsonify({'error': 'Answer sheet not found'}), 404
+
+        # Verify ownership
+        if str(sheet['teacher_id']) != str(current_user['_id']):
+            return jsonify({'error': 'Access denied'}), 403
+
+        # Get evaluation scheme
+        scheme = evaluation_scheme.find_by_id(sheet['evaluation_scheme_id'])
+
+        # Format response
+        response_data = {
+            'id': str(sheet['_id']),
+            'evaluation_scheme': {
+                'id': str(scheme['_id']),
+                'title': scheme['title'],
+                'total_marks': scheme['total_marks']
+            } if scheme else None,
+            'student_name': sheet.get('student_name'),
+            'student_roll_number': sheet.get('student_roll_number'),
+            'answer_file_url': f"/api/files/{sheet['answer_file_id']}",
+            'extracted_text': sheet.get('extracted_text'),
+            'status': sheet['status'],
+            'uploaded_at': format_datetime(sheet['uploaded_at']),
+            'processed_at': format_datetime(sheet.get('processed_at'))
+        }
+
+        # If completed, include evaluation result
+        if sheet['status'] == 'completed':
+            result = evaluation_result.find_by_answer_sheet(sheet['_id'])
+            if result:
+                response_data['evaluation_result'] = {
+                    'total_score': result['total_score'],
+                    'max_score': result['max_score'],
+                    'percentage': result['percentage'],
+                    'semantic_similarity_score': result['semantic_similarity_score'],
+                    'keyword_match_score': result['keyword_match_score'],
+                    'detailed_feedback': result['detailed_feedback'],
+                    'evaluated_at': format_datetime(result['evaluated_at']),
+                    'evaluation_time_seconds': result['evaluation_time_seconds']
+                }
+
+        return jsonify({'answer_sheet': response_data}), 200
+
+    except Exception as e:
+        print(f"Error getting answer sheet: {str(e)}")
+        return jsonify({'error': 'Server error'}), 500
+
+
+@answer_sheets_bp.route('/<sheet_id>', methods=['DELETE'])
+@token_required
+def delete_answer_sheet(current_user, sheet_id):
+    """
+    DELETE /api/answer-sheets/:id
+    Delete answer sheet and associated evaluation result
+    """
+    try:
+        # Fetch answer sheet
+        sheet = answer_sheet.find_by_id(sheet_id)
+
+        if not sheet:
+            return jsonify({'error': 'Answer sheet not found'}), 404
+
+        # Verify ownership
+        if str(sheet['teacher_id']) != str(current_user['_id']):
+            return jsonify({'error': 'Access denied'}), 403
+
+        # Delete answer PDF from GridFS
+        gridfs_service.delete_file(sheet['answer_file_id'])
+
+        # Delete evaluation result if exists
+        evaluation_result.delete_by_answer_sheet(sheet['_id'])
+
+        # Delete answer sheet document
+        answer_sheet.delete_sheet(sheet_id)
+
+        return jsonify({'message': 'Answer sheet deleted successfully'}), 200
+
+    except Exception as e:
+        print(f"Error deleting answer sheet: {str(e)}")
+        return jsonify({'error': 'Server error'}), 500
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

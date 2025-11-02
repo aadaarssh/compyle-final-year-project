@@ -55,4 +55,8 @@ def token_required(f):
         except Exception as e:
             return jsonify({'error': 'Unauthorized'}), 401
 
+<<<<<<< HEAD
     return decorated
+=======
+    return decorated
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

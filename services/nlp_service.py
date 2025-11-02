@@ -108,6 +108,108 @@ def calculate_semantic_similarity(text1, text2):
         raise NLPException(f"Semantic similarity calculation failed: {str(e)}")
 
 
+<<<<<<< HEAD
+=======
+def calculate_keyword_match(model_keywords, student_text):
+    """
+    Calculate keyword match score
+
+    Args:
+        model_keywords: List of keywords from model answer
+        student_text: Student answer text
+
+    Returns:
+        Match score (0-1)
+
+    Raises:
+        NLPException: If keyword matching fails
+    """
+    try:
+        # Extract keywords from student text
+        student_keywords = extract_keywords(student_text)
+
+        if not model_keywords:
+            return 0.0
+
+        # Count matching keywords
+        matching_count = 0
+        for model_kw in model_keywords:
+            if model_kw in student_keywords:
+                matching_count += 1
+
+        # Calculate percentage
+        match_score = matching_count / len(model_keywords)
+
+        return match_score
+
+    except Exception as e:
+        raise NLPException(f"Keyword matching failed: {str(e)}")
+
+
+def generate_feedback(student_text, model_text, similarity_score, keyword_score):
+    """
+    Generate AI feedback using OpenAI GPT-4
+
+    Args:
+        student_text: Student answer text
+        model_text: Model answer text
+        similarity_score: Semantic similarity score (0-1)
+        keyword_score: Keyword match score (0-1)
+
+    Returns:
+        Feedback text
+
+    Raises:
+        NLPException: If feedback generation fails
+    """
+    if not openai_client:
+        raise NLPException("OpenAI client not initialized")
+
+    try:
+        prompt = f"""Compare the student answer with the model answer. Provide constructive feedback highlighting strengths and areas for improvement.
+
+Model Answer:
+{model_text[:1000]}
+
+Student Answer:
+{student_text[:1000]}
+
+Metrics:
+- Semantic Similarity: {similarity_score:.2%}
+- Keyword Coverage: {keyword_score:.2%}
+
+Provide feedback in 3-4 sentences focusing on:
+1. What the student did well
+2. What key concepts or keywords were missed
+3. Specific areas for improvement"""
+
+        response = openai_client.chat.completions.create(
+            model=config.OPENAI_TEXT_MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an educational assistant providing constructive feedback on student answers."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+
+        feedback = response.choices[0].message.content
+
+        return feedback
+
+    except Exception as e:
+        # If feedback generation fails, return a default message
+        print(f"Feedback generation failed: {str(e)}")
+        return f"Answer evaluated with {similarity_score:.1%} semantic similarity and {keyword_score:.1%} keyword coverage. Review your answer against the model answer for improvement areas."
+
+
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
 def evaluate_answer(student_text, model_text, model_keywords, total_marks):
     """
     Complete evaluation of student answer
@@ -128,6 +230,7 @@ def evaluate_answer(student_text, model_text, model_keywords, total_marks):
         # Calculate semantic similarity
         semantic_similarity = calculate_semantic_similarity(student_text, model_text)
 
+<<<<<<< HEAD
         # Simple keyword match calculation
         student_keywords = extract_keywords(student_text)
         matching_keywords = 0
@@ -135,6 +238,10 @@ def evaluate_answer(student_text, model_text, model_keywords, total_marks):
             if kw in student_keywords:
                 matching_keywords += 1
         keyword_match = matching_keywords / len(model_keywords) if model_keywords else 0
+=======
+        # Calculate keyword match
+        keyword_match = calculate_keyword_match(model_keywords, student_text)
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
 
         # Compute hybrid score using configured weights
         hybrid_score = (
@@ -148,7 +255,16 @@ def evaluate_answer(student_text, model_text, model_keywords, total_marks):
         # Calculate percentage
         percentage = round((total_score / total_marks) * 100, 2) if total_marks > 0 else 0
 
+<<<<<<< HEAD
         feedback = f"Answer evaluated with {semantic_similarity:.1%} semantic similarity and {keyword_match:.1%} keyword coverage."
+=======
+        # Generate feedback
+        try:
+            feedback = generate_feedback(student_text, model_text, semantic_similarity, keyword_match)
+        except Exception as e:
+            print(f"Feedback generation error: {str(e)}")
+            feedback = f"Answer evaluated with {semantic_similarity:.1%} semantic similarity and {keyword_match:.1%} keyword coverage."
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
 
         return {
             'total_score': total_score,
@@ -163,8 +279,11 @@ def evaluate_answer(student_text, model_text, model_keywords, total_marks):
         raise
     except Exception as e:
         raise NLPException(f"Answer evaluation failed: {str(e)}")
+<<<<<<< HEAD
 
 
 # Create dummy objects for basic functionality
 nlp_model = None
 sentence_model = None
+=======
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

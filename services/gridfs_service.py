@@ -143,4 +143,27 @@ def get_file_metadata(file_id):
     except NoFile:
         raise FileStorageError("File not found")
     except Exception as e:
+<<<<<<< HEAD
         raise FileStorageError(f"Failed to retrieve file metadata: {str(e)}")
+=======
+        raise FileStorageError(f"Failed to retrieve file metadata: {str(e)}")
+
+
+def file_exists(file_id):
+    """
+    Check if file exists in GridFS
+
+    Args:
+        file_id: GridFS file ObjectId or string
+
+    Returns:
+        True if file exists, False otherwise
+    """
+    try:
+        if isinstance(file_id, str):
+            file_id = ObjectId(file_id)
+
+        return fs.exists(file_id)
+    except Exception:
+        return False
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

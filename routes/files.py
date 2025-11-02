@@ -46,4 +46,8 @@ def download_file(current_user, file_id):
         return jsonify({'error': e.message}), 404
     except Exception as e:
         print(f"Error downloading file: {str(e)}")
+<<<<<<< HEAD
         return jsonify({'error': 'Server error'}), 500
+=======
+        return jsonify({'error': 'Server error'}), 500
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

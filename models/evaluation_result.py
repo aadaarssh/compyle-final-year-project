@@ -117,6 +117,104 @@ def count_by_scheme(scheme_id):
     return db.evaluation_results.count_documents({'evaluation_scheme_id': scheme_id})
 
 
+<<<<<<< HEAD
+=======
+def calculate_statistics(scheme_id):
+    """
+    Calculate aggregate statistics for scheme results
+
+    Args:
+        scheme_id: Evaluation scheme ObjectId or string
+
+    Returns:
+        Dictionary with statistics
+    """
+    if isinstance(scheme_id, str):
+        scheme_id = ObjectId(scheme_id)
+
+    # Aggregate results for this scheme
+    pipeline = [
+        {'$match': {'evaluation_scheme_id': scheme_id}},
+        {'$group': {
+            '_id': None,
+            'total_evaluated': {'$sum': 1},
+            'average_score': {'$avg': '$total_score'},
+            'highest_score': {'$max': '$total_score'},
+            'lowest_score': {'$min': '$total_score'},
+            'average_percentage': {'$avg': '$percentage'}
+        }}
+    ]
+
+    result = list(db.evaluation_results.aggregate(pipeline))
+
+    if not result:
+        return {
+            'total_evaluated': 0,
+            'average_score': 0,
+            'highest_score': 0,
+            'lowest_score': 0,
+            'pass_rate': 0
+        }
+
+    stats = result[0]
+
+    # Calculate pass rate (assuming 50% is passing)
+    pass_count = db.evaluation_results.count_documents({
+        'evaluation_scheme_id': scheme_id,
+        'percentage': {'$gte': 50}
+    })
+
+    pass_rate = (pass_count / stats['total_evaluated'] * 100) if stats['total_evaluated'] > 0 else 0
+
+    return {
+        'total_evaluated': stats['total_evaluated'],
+        'average_score': round(stats['average_score'], 2) if stats['average_score'] else 0,
+        'highest_score': stats['highest_score'] or 0,
+        'lowest_score': stats['lowest_score'] or 0,
+        'pass_rate': round(pass_rate, 2)
+    }
+
+
+def update_result(result_id, updates):
+    """
+    Update result fields
+
+    Args:
+        result_id: Result ObjectId or string
+        updates: Dictionary of fields to update
+
+    Returns:
+        Updated result document or None
+    """
+    if isinstance(result_id, str):
+        result_id = ObjectId(result_id)
+
+    db.evaluation_results.update_one(
+        {'_id': result_id},
+        {'$set': updates}
+    )
+
+    return db.evaluation_results.find_one({'_id': result_id})
+
+
+def delete_result(result_id):
+    """
+    Delete evaluation result
+
+    Args:
+        result_id: Result ObjectId or string
+
+    Returns:
+        True if deleted, False if not found
+    """
+    if isinstance(result_id, str):
+        result_id = ObjectId(result_id)
+
+    result = db.evaluation_results.delete_one({'_id': result_id})
+    return result.deleted_count > 0
+
+
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
 def delete_by_answer_sheet(sheet_id):
     """
     Delete evaluation result by answer sheet ID
@@ -131,4 +229,8 @@ def delete_by_answer_sheet(sheet_id):
         sheet_id = ObjectId(sheet_id)
 
     result = db.evaluation_results.delete_one({'answer_sheet_id': sheet_id})
+<<<<<<< HEAD
     return result.deleted_count > 0
+=======
+    return result.deleted_count > 0
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

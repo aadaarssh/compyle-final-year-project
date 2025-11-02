@@ -107,6 +107,33 @@ def find_by_id(scheme_id):
     return db.evaluation_schemes.find_one({'_id': scheme_id})
 
 
+<<<<<<< HEAD
+=======
+def update_scheme(scheme_id, updates):
+    """
+    Update scheme fields
+
+    Args:
+        scheme_id: Scheme ObjectId or string
+        updates: Dictionary of fields to update
+
+    Returns:
+        Updated scheme document or None
+    """
+    if isinstance(scheme_id, str):
+        scheme_id = ObjectId(scheme_id)
+
+    updates['updated_at'] = datetime.utcnow()
+
+    db.evaluation_schemes.update_one(
+        {'_id': scheme_id},
+        {'$set': updates}
+    )
+
+    return find_by_id(scheme_id)
+
+
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
 def delete_scheme(scheme_id):
     """
     Delete scheme
@@ -137,4 +164,64 @@ def count_answer_sheets(scheme_id):
     if isinstance(scheme_id, str):
         scheme_id = ObjectId(scheme_id)
 
+<<<<<<< HEAD
     return db.answer_sheets.count_documents({'evaluation_scheme_id': scheme_id})
+=======
+    return db.answer_sheets.count_documents({'evaluation_scheme_id': scheme_id})
+
+
+def get_statistics(scheme_id):
+    """
+    Calculate statistics for scheme results
+
+    Args:
+        scheme_id: Scheme ObjectId or string
+
+    Returns:
+        Dictionary with statistics
+    """
+    if isinstance(scheme_id, str):
+        scheme_id = ObjectId(scheme_id)
+
+    # Aggregate results for this scheme
+    pipeline = [
+        {'$match': {'evaluation_scheme_id': scheme_id}},
+        {'$group': {
+            '_id': None,
+            'total_evaluated': {'$sum': 1},
+            'average_score': {'$avg': '$total_score'},
+            'highest_score': {'$max': '$total_score'},
+            'lowest_score': {'$min': '$total_score'},
+            'average_percentage': {'$avg': '$percentage'}
+        }}
+    ]
+
+    result = list(db.evaluation_results.aggregate(pipeline))
+
+    if not result:
+        return {
+            'total_evaluated': 0,
+            'average_score': 0,
+            'highest_score': 0,
+            'lowest_score': 0,
+            'pass_rate': 0
+        }
+
+    stats = result[0]
+
+    # Calculate pass rate (assuming 50% is passing)
+    pass_count = db.evaluation_results.count_documents({
+        'evaluation_scheme_id': scheme_id,
+        'percentage': {'$gte': 50}
+    })
+
+    pass_rate = (pass_count / stats['total_evaluated'] * 100) if stats['total_evaluated'] > 0 else 0
+
+    return {
+        'total_evaluated': stats['total_evaluated'],
+        'average_score': round(stats['average_score'], 2) if stats['average_score'] else 0,
+        'highest_score': stats['highest_score'] or 0,
+        'lowest_score': stats['lowest_score'] or 0,
+        'pass_rate': round(pass_rate, 2)
+    }
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

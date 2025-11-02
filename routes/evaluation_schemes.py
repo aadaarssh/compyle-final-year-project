@@ -1,11 +1,20 @@
 """Evaluation scheme routes"""
 from flask import Blueprint, request, jsonify
 from middleware.auth_middleware import token_required
+<<<<<<< HEAD
 from utils.validators import validate_pagination, validate_pdf, validate_file_size
 from utils.helpers import format_datetime, calculate_pagination
 from utils.errors import ValidationError
 from models import evaluation_scheme
 from services import gridfs_service
+=======
+from utils.validators import validate_pagination, validate_pdf, validate_file_size, validate_required_fields
+from utils.helpers import format_datetime, calculate_pagination
+from utils.errors import ValidationError, AuthorizationError
+from models import evaluation_scheme
+from services import gridfs_service
+from services.background_tasks import process_model_answer
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
 from config.config import get_config
 
 config = get_config()
@@ -73,6 +82,12 @@ def create_scheme(current_user):
             file_id=file_id
         )
 
+<<<<<<< HEAD
+=======
+        # Trigger background task to process model answer
+        process_model_answer.delay(str(scheme['_id']))
+
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
         # Format response
         return jsonify({
             'message': 'Evaluation scheme created successfully',
@@ -81,7 +96,11 @@ def create_scheme(current_user):
                 'title': scheme['title'],
                 'subject': scheme.get('subject'),
                 'total_marks': scheme['total_marks'],
+<<<<<<< HEAD
                 'status': scheme.get('status', 'processing'),
+=======
+                'status': scheme['status'],
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
                 'created_at': format_datetime(scheme['created_at'])
             }
         }), 201
@@ -217,4 +236,8 @@ def delete_scheme(current_user, scheme_id):
 
     except Exception as e:
         print(f"Error deleting scheme: {str(e)}")
+<<<<<<< HEAD
         return jsonify({'error': 'Server error'}), 500
+=======
+        return jsonify({'error': 'Server error'}), 500
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

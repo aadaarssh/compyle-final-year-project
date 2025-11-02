@@ -139,4 +139,8 @@ def validate_required_fields(data, required_fields):
     if missing_fields:
         raise ValidationError(f"Missing required fields: {', '.join(missing_fields)}")
 
+<<<<<<< HEAD
     return True
+=======
+    return True
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

@@ -115,4 +115,8 @@ def get_current_user(current_user):
         }), 200
 
     except Exception as e:
+<<<<<<< HEAD
         return jsonify({'error': 'Server error'}), 500
+=======
+        return jsonify({'error': 'Server error'}), 500
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

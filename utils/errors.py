@@ -46,4 +46,8 @@ class FileStorageError(Exception):
     def __init__(self, message, status_code=500):
         super().__init__(message)
         self.message = message
+<<<<<<< HEAD
         self.status_code = status_code
+=======
+        self.status_code = status_code
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

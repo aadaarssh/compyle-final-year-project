@@ -130,4 +130,8 @@ def delete_user(user_id):
         user_id = ObjectId(user_id)
 
     result = db.users.delete_one({'_id': user_id})
+<<<<<<< HEAD
     return result.deleted_count > 0
+=======
+    return result.deleted_count > 0
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

@@ -134,4 +134,8 @@ def calculate_pagination(total, page, limit):
         'limit': limit,
         'total': total,
         'pages': total_pages
+<<<<<<< HEAD
     }
+=======
+    }
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7

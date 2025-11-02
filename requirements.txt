@@ -37,4 +37,8 @@ requests==2.31.0
 email-validator==2.1.0
 
 # Development
+<<<<<<< HEAD
 python-dateutil==2.8.2
+=======
+python-dateutil==2.8.2
+>>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
