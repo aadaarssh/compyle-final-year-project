@@ -130,8 +130,4 @@ if __name__ == '__main__':
     print(f"Frontend URL: {config.FRONTEND_URL}")
     print(f"MongoDB: {config.MONGODB_URI}")
 
-<<<<<<< HEAD
-    app.run(host=host, port=port, debug=config.DEBUG)
-=======
-    app.run(host=host, port=port, debug=config.DEBUG)
->>>>>>> 32989f47432449cbf85d306e8d421ab8734efed7
+  app.run(host=host, port=port, debug=config.DEBUG)
